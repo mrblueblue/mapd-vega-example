@@ -1,4 +1,5 @@
 import mapd from "../services/mapd"
+import {filterStream} from "../services/data-stream"
 
 const QUERY = `
   SELECT dest_state, COUNT(*) as records
@@ -66,6 +67,7 @@ const VEGA_SPEC = {
 
 export default function createRow () {
 
+  filterStream("hey")
 
   mapd.query(QUERY).then(data => {
 
