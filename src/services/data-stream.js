@@ -1,0 +1,1 @@
+import mapd from './mapd'
