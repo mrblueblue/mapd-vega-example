@@ -1,4 +1,7 @@
-module.exports = {
+import mapd from "../services/mapd"
+import eventStream from "../services/data-stream"
+
+const VEGA_SPEC = {
   "$schema": "https://vega.github.io/schema/vega/v3.0.json",
   "width": 400,
   "height": 400,
@@ -103,4 +106,41 @@ module.exports = {
       }
     }
   ]
+}
+
+
+const filters = []
+
+export default function createScatter () {
+  mapd.query("SELECT carrier_name as key0,AVG(depdelay) AS x,AVG(arrdelay) AS y,COUNT(*) AS size FROM flights_donotmodify WHERE depdelay IS NOT NULL AND arrdelay IS NOT NULL GROUP BY key0 ORDER BY size DESC LIMIT 15")
+    .then(data => {
+
+      console.log(data)
+
+      VEGA_SPEC.data = {"name": "source", "values": data}
+
+
+      var a = vega.parse(VEGA_SPEC);
+      var view = new vega.View(a)
+        .logLevel(vega.Warn)
+        .initialize(document.querySelector('#chart2'))
+        .renderer('svg')
+        .run()
+
+
+      view.addSignalListener('filter', (signal ,b) => {
+        console.log(b)
+        filters.push(`carrier_name = '${b.datum.key0}'`)
+
+        eventStream.onNext(filters)
+
+        mapd.query(`SELECT dest_state, COUNT(*) as records from flights_donotmodify WHERE (${filters.join(' OR ')}) GROUP BY dest_state ORDER BY records DESC LIMIT 20`)
+          .then(data => {
+            viz.setState({data: {table: data}})
+            // viz.update(data)
+
+          })
+      })
+
+    })
 }
