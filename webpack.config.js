@@ -2,6 +2,7 @@ var path = require("path");
 module.exports = {
   entry: {
     app: [
+      "babel-polyfill",
       "script-loader!@mapd/connector/thrift/browser/thrift",
       "script-loader!@mapd/connector/thrift/browser/mapd.thrift",
       "script-loader!@mapd/connector/thrift/browser/mapd_types",

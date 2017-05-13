@@ -4,9 +4,10 @@ import createScatter from "./charts/scatter"
 
 mapd.connect().then(init)
 
-const filters = []
-
 function init (error, con){
-  createRow()
-  createScatter()
+  const row = createRow()
+  const scatter = createScatter()
+
+  row.run()
+  scatter.run()
 }

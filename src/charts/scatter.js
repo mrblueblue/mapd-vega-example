@@ -1,5 +1,5 @@
 import mapd from "../services/mapd"
-import {filterStream} from "../services/data-stream"
+import DataLayer from "../services/data-layer"
 
 const VEGA_SPEC = {
   "$schema": "https://vega.github.io/schema/vega/v3.0.json",
@@ -108,38 +108,40 @@ const VEGA_SPEC = {
   ]
 }
 
-
-const filters = []
-
 export default function createScatter () {
+  let view = null
 
-  let stream = filterStream("bob")
-
-  mapd.query("SELECT carrier_name as key0,AVG(depdelay) AS x,AVG(arrdelay) AS y,COUNT(*) AS size FROM flights_donotmodify WHERE depdelay IS NOT NULL AND arrdelay IS NOT NULL GROUP BY key0 ORDER BY size DESC LIMIT 15")
-    .then(data => {
-
-      VEGA_SPEC.data = {"name": "source", "values": data}
+  const filterStream = DataLayer.createFilterStream("scatter")
+  const dataStream = DataLayer.createDataStream("scatter")
 
 
-      var a = vega.parse(VEGA_SPEC);
-      var view = new vega.View(a)
-        .logLevel(vega.Warn)
-        .initialize(document.querySelector('#chart2'))
-        .renderer('svg')
-        .run()
+  dataStream.subscribe((data) => {
+    view ? redraw(data) : render(data)
+  })
 
+  function render (data) {
+    VEGA_SPEC.data = {"name": "source", "values": data}
+    var runtime = vega.parse(VEGA_SPEC)
+    view = new vega.View(runtime)
+      .logLevel(vega.Warn)
+      .initialize(document.querySelector('#chart2'))
+      .renderer('svg')
+      .run()
 
-      view.addSignalListener('filter', (signal ,b) => {
-        console.log(b)
-        stream.onNext(`carrier_name = '${b.datum.key0}'`)
-
-        mapd.query(`SELECT dest_state, COUNT(*) as records from flights_donotmodify WHERE (${filters.join(' OR ')}) GROUP BY dest_state ORDER BY records DESC LIMIT 20`)
-          .then(data => {
-            viz.setState({data: {table: data}})
-            // viz.update(data)
-
-          })
-      })
-
+    view.addSignalListener('filter', (signal ,b) => {
+      filterStream.onNext(`carrier_name = '${b.datum.key0}'`)
     })
+  }
+
+  function redraw (data) {
+    view.setState({data: {source: data}})
+  }
+
+  function run () {
+    DataLayer.pullDataStream("scatter")
+  }
+
+  return {
+    run
+  }
 }

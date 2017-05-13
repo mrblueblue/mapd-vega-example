@@ -1,17 +1,20 @@
 import mapd from "../services/mapd"
-import {filterStream} from "../services/data-stream"
-
-const QUERY = `
-  SELECT dest_state, COUNT(*) as records
-  from flights_donotmodify GROUP BY dest_state
-  ORDER BY records DESC LIMIT 20
-`
+import DataLayer from "../services/data-layer"
 
 const VEGA_SPEC = {
   "$schema": "https://vega.github.io/schema/vega/v3.0.json",
   "width": 400,
   "height": 400,
   "padding": 5,
+
+  "signals": [
+    {
+      "name": "filter",
+      "on": [
+        {"events": "*:click", "encode": "bars"},
+      ]
+    }
+  ],
 
   "scales": [
     {
@@ -36,6 +39,7 @@ const VEGA_SPEC = {
   "marks": [
     {
       "type": "rect",
+      "name": "bars",
       "from": {"data":"table"},
       "encode": {
         "enter": {
@@ -66,25 +70,38 @@ const VEGA_SPEC = {
 }
 
 export default function createRow () {
+  let view = null
 
-  filterStream("hey")
+  const filterStream = DataLayer.createFilterStream("row")
+  const dataStream = DataLayer.createDataStream("row")
 
-  mapd.query(QUERY).then(data => {
-
-    VEGA_SPEC.data = {"name": "table", "values": data}
-
-    var a = vega.parse(VEGA_SPEC);
-    var view = new vega.View(a)
-      .logLevel(vega.Warn) // set view logging level
-      .initialize(document.querySelector('#chart')) // set parent DOM element
-      .renderer('svg') // set render type (defaults to 'canvas')
-      .run(); // update and render the view
-
-    window.viz = view
-
+  dataStream.subscribe((data) => {
+    view ? redraw(data) : render(data)
   })
 
+  function render (data) {
+    VEGA_SPEC.data = {"name": "table", "values": data}
+    var runtime = vega.parse(VEGA_SPEC)
+    view = new vega.View(runtime)
+      .logLevel(vega.Warn)
+      .initialize(document.querySelector('#chart'))
+      .renderer('svg')
+      .run()
 
+    view.addSignalListener('filter', (signal, b) => {
+      filterStream.onNext(`dest_state = '${b.datum.dest_state}'`)
+    })
+  }
 
+  function redraw (data) {
+    view.setState({data: {table: data}})
+  }
 
+  function run () {
+    DataLayer.pullDataStream("row")
+  }
+
+  return {
+    run
+  }
 }
