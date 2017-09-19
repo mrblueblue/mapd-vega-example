@@ -1,15 +1,34 @@
 import Registry from "../services/registry";
 import { connection } from "../services/connection";
+import { flightsDataGraph } from "../services/crossfilter";
+import { redrawAll } from "../services/renderer";
 
 let ID = 0;
-const toVega = vlSpec => vega.parse(vl.compile(vlSpec).spec);
+
+const toVega = vlSpec => {
+  return vega.parse(vl.compile(vlSpec).spec);
+};
+
+const mergeSignals = view =>
+  view.getState({
+    signals: (signal, props) => {
+      view._signals = Object.assign(view._signals, { [signal]: props });
+    }
+  });
 
 export class Chart {
   constructor(node, vlSpec) {
     this.id = ID++;
-    this.dispatch = d3.dispatch("filterAll", "redraw");
     this.state = vlSpec;
     this.node = node;
+
+    this.dataNode = flightsDataGraph.data({
+      name: this.id,
+      transform: vlSpec.data.transform
+    });
+
+    this.dispatch = d3.dispatch("filterAll", "redraw", "postRender", "filter");
+
     Registry.register(this);
   }
 
@@ -17,14 +36,17 @@ export class Chart {
     this.dispatch.on(...params);
   };
 
+  filter = (...params) => {
+    this.dispatch.call("filter", flightsDataGraph, ...params);
+    redrawAll();
+  };
+
   filterAll = () => {
     this.dispatch.call("filterAll");
   };
 
   data = () => {
-    return connection.query(
-      "SELECT date_trunc(day, dep_timestamp) as key0,COUNT(*) AS val FROM flights_donotmodify WHERE (dep_timestamp >= TIMESTAMP(0) '2008-01-01 00:01:00' AND dep_timestamp <= TIMESTAMP(0) '2008-12-31 23:59:00') GROUP BY key0 ORDER BY key0"
-    );
+    return this.dataNode.values();
   };
 
   render = data => {
@@ -33,9 +55,13 @@ export class Chart {
       .renderer("svg")
       .initialize(this.node)
       .run();
+
+    mergeSignals(this.view);
+
+    this.dispatch.call("postRender", this);
   };
 
-  redraw = () => {
-    this.dispatch.call("redraw");
+  redraw = data => {
+    this.dispatch.call("redraw", this.view, data);
   };
 }
