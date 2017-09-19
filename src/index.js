@@ -1,13 +1,8 @@
-import mapd from "./services/mapd"
-import createRow from "./charts/row"
-import createScatter from "./charts/scatter"
+import { connection } from "./services/connection";
+import { renderAll } from "./services/renderer";
+import lineChart from "./charts/line";
 
-mapd.connect().then(init)
+connection.connect().then(renderAll);
 
-function init (error, con){
-  const row = createRow()
-  const scatter = createScatter()
-
-  row.run()
-  scatter.run()
-}
+// view.addSignalListener("brush_x", (a, b) => view.getState({data: (c, d) => c === "brush_store" && console.log(d.values.value[0].intervals[0].extent)}))
+// view.getState({signals: (a, b) => view._signals = Object.assign(view._signals, {[a]: b})})
