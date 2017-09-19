@@ -10,19 +10,44 @@ const lineChart = new Chart("#vis", {
         fields: ["*"],
         ops: ["count"],
         as: ["val"],
-        groupby: {
-          type: "project",
-          expr: {
-            type: "date_trunc",
-            unit: "day",
-            field: "dep_timestamp"
+        groupby: [
+          {
+            type: "project",
+            expr: {
+              type: "date_trunc",
+              unit: "day",
+              field: "dep_timestamp"
+            },
+            as: "key0"
           },
-          as: "key0"
-        }
+          {
+            type: "project",
+            expr: {
+              type: "case",
+              cond: [
+                [
+                  {
+                    type: "in",
+                    expr: "carrier_name",
+                    set: [
+                      "Delta Air Lines",
+                      "American Airlines",
+                      "US Airways",
+                      "Southwest Airlines"
+                    ]
+                  },
+                  "carrier_name"
+                ]
+              ],
+              else: "other"
+            },
+            as: "key1"
+          }
+        ]
       },
       {
         type: "sort",
-        field: ["key0"]
+        field: ["key0", "key1"]
       },
       {
         type: "filter",
@@ -36,10 +61,15 @@ const lineChart = new Chart("#vis", {
       }
     ]
   },
+  transform: [
+    {
+      filter: "datum.key1 != 'other'"
+    }
+  ],
   vconcat: [
     {
       width: 480,
-      mark: "area",
+      mark: "line",
       selection: {
         filter: { type: "interval", encodings: ["x"] }
       },
@@ -50,7 +80,11 @@ const lineChart = new Chart("#vis", {
           scale: { domain: { selection: "brush" } },
           axis: { title: "", labelAngle: 0 }
         },
-        y: { field: "val", type: "quantitative" }
+        y: { field: "val", type: "quantitative" },
+        color: {
+          field: "key1",
+          type: "nominal"
+        }
       }
     },
     {
@@ -64,7 +98,7 @@ const lineChart = new Chart("#vis", {
         x: {
           field: "key0",
           type: "temporal",
-          axis: { format: "%Y", labelAngle: 0 }
+          axis: { format: "%m", labelAngle: 0 }
         },
         y: {
           field: "val",

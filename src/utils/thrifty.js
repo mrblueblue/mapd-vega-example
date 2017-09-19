@@ -7,6 +7,8 @@ export class Thrifty {
       .dbName(config.dbName)
       .user(config.user)
       .password(config.password);
+
+    this.connection.logging(true);
   }
   connect = config => {
     return new Promise((resolve, reject) => {
