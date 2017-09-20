@@ -28,15 +28,15 @@ const lineChart = new Chart("#vis", {
                 [
                   {
                     type: "in",
-                    expr: "carrier_name",
+                    expr: "dest",
                     set: [
-                      "Delta Air Lines",
-                      "American Airlines",
-                      "US Airways",
-                      "Southwest Airlines"
+                      "SFO",
+                      "JFK",
+                      "LAX",
+                      "DCA"
                     ]
                   },
-                  "carrier_name"
+                  "dest"
                 ]
               ],
               else: "other"
@@ -47,7 +47,7 @@ const lineChart = new Chart("#vis", {
       },
       {
         type: "sort",
-        field: ["key0", "key1"]
+        field: ["key0"]
       },
       {
         type: "filter",
@@ -78,9 +78,9 @@ const lineChart = new Chart("#vis", {
           field: "key0",
           type: "temporal",
           scale: { domain: { selection: "brush" } },
-          axis: { title: "", labelAngle: 0 }
+          axis: { title: "", labelAngle: 0 , "format": "%-m/%-d/%Y", grid: false}
         },
-        y: { field: "val", type: "quantitative" },
+        y: { field: "val", type: "quantitative", scale: {zero: false} },
         color: {
           field: "key1",
           type: "nominal"
@@ -89,8 +89,8 @@ const lineChart = new Chart("#vis", {
     },
     {
       width: 480,
-      height: 60,
-      mark: "area",
+      height: 100,
+      mark: "line",
       selection: {
         brush: { type: "interval", encodings: ["x"] }
       },
@@ -98,12 +98,17 @@ const lineChart = new Chart("#vis", {
         x: {
           field: "key0",
           type: "temporal",
-          axis: { format: "%m", labelAngle: 0 }
+          axis: { labelAngle: 0, grid: false }
         },
         y: {
           field: "val",
           type: "quantitative",
-          axis: { tickCount: 3, grid: false }
+          axis: { tickCount: 3, grid: false},
+          scale: {zero: false}
+        },
+        color: {
+          field: "key1",
+          type: "nominal"
         }
       }
     }
@@ -138,5 +143,9 @@ lineChart.on("postRender", function postRender() {
     });
   });
 });
+
+// lineChart.on("redraw", function redraw(data) {
+//   this.setState({ data: { source_0: data } });
+// });
 
 export default lineChart;

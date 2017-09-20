@@ -18,12 +18,15 @@
   "homepage": "https://github.com/mrblueblue/mapd-datagraph-sketch#readme",
   "dependencies": {
     "@mapd/connector": "ssh://git@github.com/mapd/mapd-connector.git#v2.1.0",
+    "css-loader": "^0.28.7",
     "d3": "^4.10.2",
     "mapd-data-layer": "^0.0.3-beta",
     "prettier": "^1.7.0",
+    "style-loader": "^0.18.2",
     "vega": "^3.0.2",
     "vega-embed": "^3.0.0-beta.20",
-    "vega-lite": "^2.0.0-rc2"
+    "vega-lite": "^2.0.0-rc3",
+    "vega-tooltip": "^0.4.4"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",

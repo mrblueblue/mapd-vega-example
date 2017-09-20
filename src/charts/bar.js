@@ -9,7 +9,7 @@ const barChart = new Chart("#bar", {
         fields: ["depdelay"],
         ops: ["average"],
         as: ["records"],
-        groupby: "dest_state"
+        groupby: "carrier_name"
       },
       {
         type: "sort",
@@ -25,7 +25,7 @@ const barChart = new Chart("#bar", {
   mark: "bar",
   encoding: {
     y: {
-      field: "dest_state",
+      field: "carrier_name",
       type: "ordinal",
       scale: { rangeStep: 17 }
     },

@@ -6,6 +6,7 @@ import { redrawAll } from "../services/renderer";
 let ID = 0;
 
 const toVega = vlSpec => {
+  console.log(vl.compile(vlSpec).spec)
   return vega.parse(vl.compile(vlSpec).spec);
 };
 
@@ -51,6 +52,7 @@ export class Chart {
 
   render = data => {
     this.state.data = { values: data };
+
     this.view = new vega.View(toVega(this.state))
       .renderer("svg")
       .initialize(this.node)
