@@ -1,8 +1,13 @@
 import { connection } from "./services/connection";
 import { renderAll } from "./services/renderer";
-import lineChart from "./charts/overview-detail-line";
-import barChart from "./charts/bar"
-import multiMeasureLine from "./charts/faceted-line"
-// import vconcatScatterplot from "./charts/vconcat-scatterplot"
 
-connection.connect().then(renderAll);
+switch (window.location.pathname) {
+  case "/splom.html":
+    require("./charts/splom");
+  case "/lines.html":
+    require("./charts/overview-detail-line");
+    require("./charts/bar");
+    require("./charts/faceted-line");
+  default:
+    connection.connect().then(() => renderAll());
+}

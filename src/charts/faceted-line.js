@@ -149,18 +149,18 @@ multiMeasureLine.on("filter", function filter(extent) {
 });
 
 multiMeasureLine.on("postRender", function postRender() {
-  // this.view.addSignalListener("brush1_x", () => {
-  //   this.view.getState({
-  //     data: (data, values) => {
-  //       if (data === "brush1_store") {
-  //         const extent = getExtent(values);
-  //         if (extent) {
-  //           console.log(extent)
+  //   this.view.addSignalListener("brush1_x", () => {
+  //     this.view.getState({
+  //       data: (data, values) => {
+  //         if (data === "brush1_store") {
+  //           const extent = getExtent(values);
+  //           if (extent) {
+  //             console.log(extent)
+  //           }
   //         }
   //       }
-  //     }
+  //     });
   //   });
-  // });
 
   vegaTooltip.vega(this.view, {
     showAllFields: false,

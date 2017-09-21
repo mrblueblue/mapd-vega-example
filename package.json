@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server",
+    "start": "webpack-dev-server --content-base public/",
+    "build": "webpack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -22,7 +23,6 @@
     "d3": "^4.10.2",
     "mapd-data-layer": "^0.0.3-beta",
     "vega": "^3.0.2",
-    "vega-embed": "^3.0.0-beta.20",
     "vega-lite": "^2.0.0-rc3",
     "vega-tooltip": "^0.4.4"
   },

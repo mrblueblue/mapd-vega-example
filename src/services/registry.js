@@ -1,26 +1,18 @@
 const chartGroups = new Map();
 
-function initializeGroup(groupName) {
-  if (typeof groupName !== "string") {
-    groupName = "DEFAULT";
-  }
-
-  if (!chartGroups.has(groupName)) {
-    chartGroups.set(groupName, new Map());
-  }
-
-  return groupName;
-}
+const DEFAULT = "DEFAULT";
 
 class Registry {
-  register(chart, groupName) {
-    groupName = initializeGroup(groupName);
-    chartGroups.get(groupName).set(chart.id, chart);
+  register(chart, groupName = DEFAULT) {
+    return chartGroups.has(groupName)
+      ? chartGroups.get(groupName).set(chart.id, chart)
+      : chartGroups.set(groupName, new Map().set(chart.id, chart));
   }
 
-  list(groupName) {
-    groupName = initializeGroup(groupName);
-    return Array.from(chartGroups.get(groupName).values());
+  list(groupName = DEFAULT) {
+    return chartGroups.has(groupName)
+      ? Array.from(chartGroups.get(groupName).values())
+      : [];
   }
 }
 
