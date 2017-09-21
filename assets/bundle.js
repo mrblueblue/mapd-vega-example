@@ -1244,10 +1244,13 @@ var _connection = __webpack_require__(4);
 
 var _renderer = __webpack_require__(5);
 
-switch (window.location.pathname) {
-  case "/splom.html":
+var pathname = window.location.pathname.split("/");
+var route = pathname[pathname.length - 1];
+
+switch (route) {
+  case "splom.html":
     __webpack_require__(29);
-  case "/lines.html":
+  case "lines.html":
     __webpack_require__(50);
     __webpack_require__(51);
     __webpack_require__(52);
