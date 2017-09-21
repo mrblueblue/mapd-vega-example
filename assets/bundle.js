@@ -1246,6 +1246,7 @@ var _renderer = __webpack_require__(5);
 
 var pathname = window.location.pathname.split("/");
 var route = pathname[pathname.length - 1];
+console.log(route);
 
 switch (route) {
   case "splom.html":

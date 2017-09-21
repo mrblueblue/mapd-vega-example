@@ -3,6 +3,7 @@ import { renderAll } from "./services/renderer";
 
 const pathname = window.location.pathname.split("/")
 const route = pathname[pathname.length - 1]
+console.log(route)
 
 switch (route) {
   case "splom.html":
