@@ -57,7 +57,7 @@
 /******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
 /******/
 /******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "/public/";
+/******/ 	__webpack_require__.p = "/assets/";
 /******/
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(__webpack_require__.s = 11);
@@ -403,6 +403,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var chartGroups = new Map();
 
+var DEFAULT = "DEFAULT";
+
 var Registry = function () {
   function Registry() {
     _classCallCheck(this, Registry);
@@ -411,14 +413,14 @@ var Registry = function () {
   _createClass(Registry, [{
     key: "register",
     value: function register(chart) {
-      var groupName = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "DEFAULT";
+      var groupName = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DEFAULT;
 
-      return chartGroups.has(groupName) ? chartGroups.get(groupName).set(chart.id, chart) : chartGroups.set(groupName, new Map([chart.id, chart]));
+      return chartGroups.has(groupName) ? chartGroups.get(groupName).set(chart.id, chart) : chartGroups.set(groupName, new Map().set(chart.id, chart));
     }
   }, {
     key: "list",
     value: function list() {
-      var groupName = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "DEFAULT";
+      var groupName = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : DEFAULT;
 
       return chartGroups.has(groupName) ? Array.from(chartGroups.get(groupName).values()) : [];
     }
@@ -1242,15 +1244,21 @@ var _connection = __webpack_require__(4);
 
 var _renderer = __webpack_require__(5);
 
-switch (window.location.pathname) {
-  case "/splom.html":
+var pathname = window.location.pathname.split("/");
+var route = pathname[pathname.length - 1];
+console.log(route);
+
+switch (route) {
+  case "splom.html":
     __webpack_require__(29);
-  case "/lines.html":
+  case "lines.html":
     __webpack_require__(50);
     __webpack_require__(51);
     __webpack_require__(52);
   default:
-    _connection.connection.connect().then(_renderer.renderAll);
+    _connection.connection.connect().then(function () {
+      return (0, _renderer.renderAll)();
+    });
 }
 
 /***/ }),
@@ -1317,13 +1325,13 @@ var splomChart = new _chart.Chart("#splom", {
       type: "aggregate",
       fields: ["arrdelay", "depdelay", "carrierdelay"],
       ops: ["average", "average", "average"],
-      as: ["x1", "y1", "x2"],
+      as: ["arrdelay", "depdelay", "carrierdelay"],
       groupby: ["dest_city"]
     }]
   },
   repeat: {
-    row: ["y1", "x1", "x2"],
-    column: ["x2", "x1", "y1"]
+    row: ["depdelay", "arrdelay", "carrierdelay"],
+    column: ["carrierdelay", "arrdelay", "depdelay"]
   },
   spec: {
     mark: "point",
@@ -1356,6 +1364,12 @@ var splomChart = new _chart.Chart("#splom", {
       }
     }
   }
+});
+
+splomChart.on("postRender", function postRender() {
+  vegaTooltip.vega(this.view, {
+    showAllFields: true
+  });
 });
 
 exports.default = splomChart;
@@ -3167,18 +3181,18 @@ multiMeasureLine.on("filter", function filter(extent) {
 });
 
 multiMeasureLine.on("postRender", function postRender() {
-  // this.view.addSignalListener("brush1_x", () => {
-  //   this.view.getState({
-  //     data: (data, values) => {
-  //       if (data === "brush1_store") {
-  //         const extent = getExtent(values);
-  //         if (extent) {
-  //           console.log(extent)
+  //   this.view.addSignalListener("brush1_x", () => {
+  //     this.view.getState({
+  //       data: (data, values) => {
+  //         if (data === "brush1_store") {
+  //           const extent = getExtent(values);
+  //           if (extent) {
+  //             console.log(extent)
+  //           }
   //         }
   //       }
-  //     }
+  //     });
   //   });
-  // });
 
   vegaTooltip.vega(this.view, {
     showAllFields: false,
