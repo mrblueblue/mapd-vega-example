@@ -2,7 +2,7 @@ import { Chart } from "../utils/chart";
 import { formatTime, getExtent } from "../utils/vega";
 
 const vconcatScatterplot = new Chart("#scatterplot", {
-  "data": {
+  data: {
     transform: [
       {
         type: "aggregate",
@@ -13,34 +13,45 @@ const vconcatScatterplot = new Chart("#scatterplot", {
       }
     ]
   },
-  "vconcat": [{
-    "selection": {
-      "filter": {"type": "interval"}
+  vconcat: [
+    {
+      selection: {
+        filter: { type: "interval" }
+      },
+      mark: "point",
+      encoding: {
+        x: { field: "x1", type: "quantitative" },
+        y: { field: "y1", type: "quantitative" },
+        color: {
+          condition: {
+            selection: "filter",
+            field: "dest_state",
+            type: "nominal"
+          },
+          value: "grey"
+        }
+      }
     },
-    "mark": "point",
-    "encoding": {
-      "x": {"field": "x1","type": "quantitative"},
-      "y": {"field": "y1","type": "quantitative"},
-      "color": {
-      "condition": {"selection": "filter", "field": "dest_state", "type": "nominal"},
-      "value": "grey"
+    {
+      transform: [
+        {
+          filter: { selection: "filter" }
+        }
+      ],
+      mark: "point",
+      encoding: {
+        x: {
+          field: "x2",
+          type: "quantitative"
+        },
+        y: {
+          field: "y2",
+          type: "quantitative"
+        },
+        color: { field: "dest_state", type: "nominal" }
+      }
     }
-    }
-  }, {
-    "transform": [{
-      "filter": {"selection": "filter"}
-    }],
-    "mark": "point",
-    "encoding": {
-      "x": {
-        "field": "x2", "type": "quantitative"
-      },
-      "y": {
-        "field": "y2","type": "quantitative"
-      },
-      color: {field: "dest_state", type: "nominal"}
-    }
-  }]
+  ]
 });
 
 vconcatScatterplot.on("filter", function filter([x, y]) {
@@ -72,7 +83,7 @@ vconcatScatterplot.on("postRender", function postRender() {
       data: (data, values) => {
         if (data === "filter_store") {
           const extent = getExtent(values, 1);
-          const extent2 = getExtent(values, 0)
+          const extent2 = getExtent(values, 0);
 
           if (extent) {
             this.filter([extent2, [extent[1], extent[0]]]);
@@ -82,7 +93,6 @@ vconcatScatterplot.on("postRender", function postRender() {
     });
   });
 });
-
 
 // vconcatScatterplot.on("redraw", function redraw(data) {
 //   this.setState({ data: { source_0: data } });

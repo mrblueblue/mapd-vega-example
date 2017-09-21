@@ -5,10 +5,7 @@ import { redrawAll } from "../services/renderer";
 
 let ID = 0;
 
-const toVega = vlSpec => {
-  console.log(vl.compile(vlSpec).spec)
-  return vega.parse(vl.compile(vlSpec).spec);
-};
+const toVega = vlSpec => vega.parse(vl.compile(vlSpec).spec);
 
 const mergeSignals = view =>
   view.getState({
@@ -54,7 +51,7 @@ export class Chart {
     this.state.data = { values: data };
 
     this.view = new vega.View(toVega(this.state))
-      .renderer("svg")
+      .renderer("canvas")
       .initialize(this.node)
       .run();
 

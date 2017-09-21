@@ -1,5 +1,8 @@
 import { Chart } from "../utils/chart";
 import { formatTime, getExtent } from "../utils/vega";
+import { XFILTER_SIGNAL } from "../constants";
+
+const ID = "FACETED_LINE";
 
 const multiMeasureLine = new Chart("#multi-measure-line", {
   $schema: "https://vega.github.io/schema/vega-lite/v2.json",
@@ -15,7 +18,7 @@ const multiMeasureLine = new Chart("#multi-measure-line", {
             type: "project",
             expr: {
               type: "date_trunc",
-              unit: "day",
+              unit: "week",
               field: "arr_timestamp"
             },
             as: "key0"
@@ -29,12 +32,7 @@ const multiMeasureLine = new Chart("#multi-measure-line", {
                   {
                     type: "in",
                     expr: "dest",
-                    set: [
-                      "SFO",
-                      "JFK",
-                      "LAX",
-                      "DCA"
-                    ]
+                    set: ["SFO", "JFK", "IAD", "DCA", "OAK"]
                   },
                   "dest"
                 ]
@@ -58,6 +56,11 @@ const multiMeasureLine = new Chart("#multi-measure-line", {
           left: "TIMESTAMP(0) '1987-10-01 00:03:00'",
           right: "TIMESTAMP(0) '2008-12-31 23:59:00'"
         }
+      },
+      {
+        type: "resolvefilter",
+        filter: { signal: XFILTER_SIGNAL },
+        ignore: ID
       }
     ]
   },
@@ -66,70 +69,69 @@ const multiMeasureLine = new Chart("#multi-measure-line", {
       filter: "datum.key1 != 'other'"
     }
   ],
+  facet: {
+    column: {
+      type: "nominal",
+      field: "key1"
+    }
+  },
+  spec: {
     layer: [
       {
-        width: 480,
         mark: "line",
-        "selection": {
-          "grid_left": {
-            "type": "interval", "bind": "scales"
-          }
-        },
         encoding: {
           x: {
             field: "key0",
             type: "temporal",
-            axis: { title: "Arrival Time by Day", labelAngle: 0, "format": "%-m/%-d/%Y" }
-          },
-          y: { field: "val", type: "quantitative", axis: {title: "avg(depdelay)" }},
-          color: {
-            field: "key1",
-            type: "nominal"
-          }
-        },
-      },
-        {
-          width: 480,
-          mark: "line",
-          "selection": {
-            "grid_right": {
-              "type": "interval", "bind": "scales"
+            axis: {
+              title: "Arrival Time by Day",
+              labelAngle: 0,
+              format: "%-m/%-d/%Y"
             }
           },
-          encoding: {
-            x: {
-              field: "key0",
-              type: "temporal",
-            },
-            y: { field: "val2", type: "quantitative", axis: {title: "avg(arrdelay)"} },
-            color: {
-              field: "key1",
-              type: "nominal"
-            },
-            "opacity": {"value": 0.2}
-          }
+          y: {
+            field: "val",
+            type: "quantitative",
+            axis: { title: "avg(depdelay)" }
+          },
+          color: { field: "key1" }
+        }
       },
       {
-  "selection": {
-    "index": {
-      "type": "single", "on": "mousemove",
-      "encodings": ["x"],
-      "nearest": true
-    },
-      "grid_left_middle": {
-        "type": "interval", "bind": "scales"
-      }
-  },
-  "mark": "point",
-  "encoding": {
-    "x": {"field": "key0", "type": "temporal", "axis": null},
-    "y": {"field": "val", "type": "quantitative", "axis": null},
-    "opacity": {"value": 0}
-  }
-}
-    ],
-    "resolve": {"scale": {"y": "independent"}}
+        mark: "line",
+        encoding: {
+          x: {
+            field: "key0",
+            type: "temporal"
+          },
+          y: {
+            field: "val2",
+            type: "quantitative",
+            axis: { title: "avg(arrdelay)" }
+          },
+          color: { field: "key1" },
 
+          opacity: { value: 0.5 }
+        }
+      },
+      {
+        selection: {
+          index: {
+            type: "single",
+            on: "mousemove",
+            encodings: ["x"],
+            nearest: true
+          }
+        },
+        mark: "point",
+        encoding: {
+          x: { field: "key0", type: "temporal", axis: null },
+          y: { field: "val", type: "quantitative", axis: null },
+          opacity: { value: 0 }
+        }
+      }
+    ]
+  }
 });
 
 multiMeasureLine.on("filter", function filter(extent) {
@@ -147,7 +149,6 @@ multiMeasureLine.on("filter", function filter(extent) {
 });
 
 multiMeasureLine.on("postRender", function postRender() {
-
   // this.view.addSignalListener("brush1_x", () => {
   //   this.view.getState({
   //     data: (data, values) => {
@@ -184,12 +185,11 @@ multiMeasureLine.on("postRender", function postRender() {
         title: "avg(arrdelay)"
       }
     ]
-  })
+  });
 });
 
 multiMeasureLine.on("redraw", function redraw(data) {
   this.setState({ data: { source_0: data } });
 });
-
 
 export default multiMeasureLine;
