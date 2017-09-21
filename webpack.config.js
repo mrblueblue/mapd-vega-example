@@ -1,29 +1,35 @@
+var webpack = require("webpack");
 var path = require("path");
+
 module.exports = {
-  entry: {
-    app: [
-      "babel-polyfill",
-      "script-loader!@mapd/connector/thrift/browser/thrift",
-      "script-loader!@mapd/connector/thrift/browser/mapd.thrift",
-      "script-loader!@mapd/connector/thrift/browser/mapd_types",
-      "script-loader!@mapd/connector/dist/mapd-connector",
-      "script-loader!vega/build/vega-core",
-      "./src/index"
-    ]
-  },
+  entry: [
+    "script-loader!d3/build/d3.min.js",
+    "script-loader!vega/build/vega.min.js",
+    "script-loader!vega-lite/build/vega-lite.min.js",
+    "script-loader!vega-tooltip/build/vega-tooltip.min.js",
+    "script-loader!@mapd/connector/dist/browser-connector",
+    "vega-tooltip/build/vega-tooltip.min.css",
+    "./src/index.js"
+  ],
+  devtool: "source-map",
   output: {
-    path: path.resolve(__dirname, "build"),
+    path: path.resolve(__dirname, "assets"),
     publicPath: "/assets/",
     filename: "bundle.js"
   },
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.js$/,
-        loader: "babel-loader",
-        include: path.resolve(__dirname, "src")
-      }
+        include: [
+          path.resolve(__dirname, "src")
+        ],
+        loader: "babel-loader"
+      },
+      {
+  test: /\.css$/,
+  use: ["style-loader", "css-loader" ]
+}
     ]
   }
-
-};
+}

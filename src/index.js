@@ -1,13 +1,8 @@
-import mapd from "./services/mapd"
-import createRow from "./charts/row"
-import createScatter from "./charts/scatter"
+import { connection } from "./services/connection";
+import { renderAll } from "./services/renderer";
+import lineChart from "./charts/overview-detail-line";
+import barChart from "./charts/bar"
+import multiMeasureLine from "./charts/faceted-line"
+// import vconcatScatterplot from "./charts/vconcat-scatterplot"
 
-mapd.connect().then(init)
-
-function init (error, con){
-  const row = createRow()
-  const scatter = createScatter()
-
-  row.run()
-  scatter.run()
-}
+connection.connect().then(renderAll);
