@@ -164,7 +164,6 @@ multiMeasureLine.on("postRender", function postRender() {
 
   vegaTooltip.vega(this.view, {
     showAllFields: false,
-    onAppear: (a, b) => console.log(a, b),
     fields: [
       {
         field: "datum.key0",
