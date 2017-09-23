@@ -3,15 +3,13 @@ import { renderAll } from "./services/renderer";
 
 const pathname = window.location.pathname.split("/")
 const route = pathname[pathname.length - 1]
-console.log(route)
 
-switch (route) {
-  case "splom.html":
-    require("./charts/splom");
-  case "lines.html":
-    require("./charts/overview-detail-line");
-    require("./charts/bar");
-    require("./charts/faceted-line");
-  default:
-    connection.connect().then(() => renderAll());
+if (route === "splom.html") {
+  require("./charts/splom");
+} else if (route === "lines.html") {
+  require("./charts/overview-detail-line");
+  require("./charts/bar");
+  require("./charts/faceted-line");
 }
+
+connection.connect().then(() => renderAll());

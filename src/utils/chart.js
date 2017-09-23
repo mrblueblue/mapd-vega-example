@@ -51,7 +51,7 @@ export class Chart {
     this.state.data = { values: data };
 
     this.view = new vega.View(toVega(this.state))
-      .renderer("canvas")
+      .renderer("svg")
       .initialize(this.node)
       .run();
 

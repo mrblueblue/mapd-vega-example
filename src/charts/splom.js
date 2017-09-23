@@ -6,10 +6,19 @@ const splomChart = new Chart("#splom", {
     transform: [
       {
         type: "aggregate",
-        fields: ["arrdelay", "depdelay", "carrierdelay"],
-        ops: ["average", "average", "average"],
-        as: ["arrdelay", "depdelay", "carrierdelay"],
+        fields: ["arrdelay", "depdelay", "carrierdelay", "*"],
+        ops: ["average", "average", "average", "count"],
+        as: ["arrdelay", "depdelay", "carrierdelay", "records"],
         groupby: ["dest_city"]
+      },
+      {
+        type: "sort",
+        field: ["records"],
+        order: ["descending"]
+      },
+      {
+        type: "limit",
+        row: 50
       }
     ]
   },
@@ -19,6 +28,10 @@ const splomChart = new Chart("#splom", {
   },
   spec: {
     mark: "point",
+    config: {
+      legend: null
+
+    },
     selection: {
       brush: {
         type: "interval",
@@ -46,7 +59,7 @@ const splomChart = new Chart("#splom", {
           field: "dest_city",
           type: "nominal"
         },
-        value: "grey"
+        value: "grey",
       }
     }
   }
