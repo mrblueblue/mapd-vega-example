@@ -274,7 +274,7 @@ var Chart = exports.Chart = function Chart(node, vlSpec) {
   this.render = function (data) {
     _this.state.data = { values: data };
 
-    _this.view = new vega.View(toVega(_this.state)).renderer("canvas").initialize(_this.node).run();
+    _this.view = new vega.View(toVega(_this.state)).renderer("svg").initialize(_this.node).run();
 
     mergeSignals(_this.view);
 
@@ -1246,20 +1246,18 @@ var _renderer = __webpack_require__(5);
 
 var pathname = window.location.pathname.split("/");
 var route = pathname[pathname.length - 1];
-console.log(route);
 
-switch (route) {
-  case "splom.html":
-    __webpack_require__(29);
-  case "lines.html":
-    __webpack_require__(50);
-    __webpack_require__(51);
-    __webpack_require__(52);
-  default:
-    _connection.connection.connect().then(function () {
-      return (0, _renderer.renderAll)();
-    });
+if (route === "splom.html") {
+  __webpack_require__(29);
+} else if (route === "lines.html") {
+  __webpack_require__(50);
+  __webpack_require__(51);
+  __webpack_require__(52);
 }
+
+_connection.connection.connect().then(function () {
+  return (0, _renderer.renderAll)();
+});
 
 /***/ }),
 /* 28 */
@@ -1323,10 +1321,17 @@ var splomChart = new _chart.Chart("#splom", {
   data: {
     transform: [{
       type: "aggregate",
-      fields: ["arrdelay", "depdelay", "carrierdelay"],
-      ops: ["average", "average", "average"],
-      as: ["arrdelay", "depdelay", "carrierdelay"],
+      fields: ["arrdelay", "depdelay", "carrierdelay", "*"],
+      ops: ["average", "average", "average", "count"],
+      as: ["arrdelay", "depdelay", "carrierdelay", "records"],
       groupby: ["dest_city"]
+    }, {
+      type: "sort",
+      field: ["records"],
+      order: ["descending"]
+    }, {
+      type: "limit",
+      row: 50
     }]
   },
   repeat: {
@@ -1335,6 +1340,10 @@ var splomChart = new _chart.Chart("#splom", {
   },
   spec: {
     mark: "point",
+    config: {
+      legend: null
+
+    },
     selection: {
       brush: {
         type: "interval",
@@ -3196,9 +3205,6 @@ multiMeasureLine.on("postRender", function postRender() {
 
   vegaTooltip.vega(this.view, {
     showAllFields: false,
-    onAppear: function onAppear(a, b) {
-      return console.log(a, b);
-    },
     fields: [{
       field: "datum.key0",
       formatType: "time",
